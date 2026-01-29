@@ -1,21 +1,22 @@
 spring:
-  application:
-    name: real-time-trading
+  datasource:
+    url: jdbc:mysql://localhost:3306/trading?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&defaultAuthenticationPlugin=mysql_native_password
+    username: trading_user
+    password: trading1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
-  profiles:
-    active: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
-  # JPA 설정 - 자동 설정 비활성화
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+  redis:
+    host: localhost
+    port: 6379
 
-# Server 설정
-server:
-  port: 8080
-
-# Logging 설정
 logging:
   level:
-    com.trading: DEBUG
+    org.hibernate.SQL: debug
