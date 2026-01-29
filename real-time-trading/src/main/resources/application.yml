@@ -20,3 +20,7 @@ spring:
 logging:
   level:
     org.hibernate.SQL: debug
+
+jwt:
+  secret: your-256-bit-secret-key-change-this-in-production-please-make-it-long-enough
+  expiration: 86400000 # 24시간 (밀리초)

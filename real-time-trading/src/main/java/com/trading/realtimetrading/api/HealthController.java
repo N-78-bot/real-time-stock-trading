@@ -1,4 +1,4 @@
-package com.trading.realtimetrading;
+package com.trading.realtimetrading.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
