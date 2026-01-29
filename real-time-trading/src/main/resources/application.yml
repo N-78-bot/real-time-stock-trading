@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: real-time-trading
+
+  profiles:
+    active: dev
+
+  # JPA 설정 - 자동 설정 비활성화
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+
+# Server 설정
+server:
+  port: 8080
+
+# Logging 설정
+logging:
+  level:
+    com.trading: DEBUG
