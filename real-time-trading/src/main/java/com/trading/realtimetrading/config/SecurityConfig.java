@@ -40,6 +40,16 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()     // 회원가입, 로그인
                         .requestMatchers("/health/**").permitAll()       // Health Check
 
+                        // WebSocket & 정적 리소스 (인증 불필요)
+                        .requestMatchers("/ws/**").permitAll()           // WebSocket 엔드포인트
+                        .requestMatchers("/topic/**").permitAll()        // STOMP topic
+                        .requestMatchers("/app/**").permitAll()          // STOMP app
+                        .requestMatchers("/*.html").permitAll()          // HTML 파일
+                        .requestMatchers("/static/**").permitAll()       // 정적 리소스
+                        .requestMatchers("/css/**").permitAll()          // CSS
+                        .requestMatchers("/js/**").permitAll()           // JavaScript
+                        .requestMatchers("/images/**").permitAll()       // 이미지
+
                         // 나머지는 모두 인증 필요
                         .anyRequest().authenticated()
                 )

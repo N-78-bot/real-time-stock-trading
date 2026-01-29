@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">  <!-- 이 줄 확인! -->
+    <title>실시간 시세</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', Arial, sans-serif;  /* 한글 폰트 추가 */
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        #status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #e3f2fd;
+        }
+        #prices {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .price-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .positive {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        .negative {
+            color: #1976d2;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<h1>🚀 실시간 코인 시세</h1>
+<div id="status">연결 중...</div>
+<div id="prices"></div>
+
+<script>
+    const socket = new SockJS('http://localhost:8081/ws');
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function(frame) {
+        console.log('WebSocket 연결 성공:', frame);
+        document.getElementById('status').innerHTML = '✅ 연결됨';
+        document.getElementById('status').style.color = 'green';
+
+        stompClient.subscribe('/topic/stock-price', function(message) {
+            const data = JSON.parse(message.body);
+
+            const changeClass = data.changeRate >= 0 ? 'positive' : 'negative';
+            const changeSymbol = data.changeRate >= 0 ? '+' : '';
+
+            const priceHtml = `
+                    <div class="price-item">
+                        <strong>${data.code}</strong>:
+                        ${data.price.toLocaleString()}원
+                        <span class="${changeClass}">
+                            (${changeSymbol}${(data.changeRate * 100).toFixed(2)}%)
+                        </span>
+                        <small>${new Date(data.timestamp).toLocaleTimeString()}</small>
+                    </div>
+                `;
+
+            document.getElementById('prices').innerHTML = priceHtml + document.getElementById('prices').innerHTML;
+
+            // 최근 20개만 유지
+            const items = document.querySelectorAll('.price-item');
+            if (items.length > 20) {
+                items[items.length - 1].remove();
+            }
+        });
+    }, function(error) {
+        console.error('WebSocket 연결 실패:', error);
+        document.getElementById('status').innerHTML = '❌ 연결 실패';
+        document.getElementById('status').style.color = 'red';
+    });
+</script>
+</body>
+</html>
