@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: trading-app-service
+  labels:
+    app: trading-app
+spec:
+  type: NodePort  # minikube에서 외부 접근용
+  selector:
+    app: trading-app
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8080        # 서비스 포트
+    targetPort: 8080  # Pod 포트
+    nodePort: 30080   # 외부 접근 포트 (30000-32767 범위)

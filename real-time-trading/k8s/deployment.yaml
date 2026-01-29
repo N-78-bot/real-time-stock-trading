@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trading-app
+  labels:
+    app: trading-app
+spec:
+  replicas: 2  # 2개의 Pod 실행
+  selector:
+    matchLabels:
+      app: trading-app
+  template:
+    metadata:
+      labels:
+        app: trading-app
+    spec:
+      containers:
+      - name: trading-app
+        image: trading-app:latest  # 로컬 이미지 (minikube용)
+        imagePullPolicy: Never  # 로컬 이미지 사용
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql-service:3306/trading?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&defaultAuthenticationPlugin=mysql_native_password"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "trading_user"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "trading1234"
+        - name: SPRING_REDIS_HOST
+          value: "redis-service"
+        - name: SPRING_REDIS_PORT
+          value: "6379"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health/db
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/db
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
