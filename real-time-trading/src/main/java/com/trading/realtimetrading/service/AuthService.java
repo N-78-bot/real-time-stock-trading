@@ -18,6 +18,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AccountService accountService;
 
     @Transactional
     public AuthResponse signup(SignupRequest request) {
@@ -33,6 +34,9 @@ public class AuthService {
 
         userRepository.save(user);
 
+        // 계좌 자동 생성
+        accountService.createAccount(user);
+
         String token = jwtTokenProvider.createToken(user.getEmail());
         return new AuthResponse(token, user.getEmail(), user.getNickname());
     }
@@ -43,7 +47,7 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("비밀번호가 일치하지 않습니다");
+            throw new RuntimeException("비밀번호가 일치하지 않습니다"));
         }
 
         String token = jwtTokenProvider.createToken(user.getEmail());

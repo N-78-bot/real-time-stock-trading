@@ -4,7 +4,6 @@ import com.trading.realtimetrading.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,41 +23,49 @@ public class Order {
     private User user;
 
     @Column(nullable = false, length = 20)
-    private String stockCode;  // KRW-BTC, KRW-ETH 등
+    private String stockCode;  // 주식 코드
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
-    private OrderType orderType;  // BUY, SELL
+    private OrderType orderType;  // 매수/매도
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
-    private PriceType priceType;  // MARKET, LIMIT
+    @Column(nullable = false)
+    private Long quantity;  // 수량
 
-    @Column(nullable = false, precision = 20, scale = 8)
-    private BigDecimal quantity;  // 수량
+    @Column(nullable = false)
+    private Double price;  // 주문 가격
 
-    @Column(precision = 20, scale = 2)
-    private BigDecimal price;  // 가격 (지정가의 경우)
-
-    @Column(precision = 20, scale = 2)
-    private BigDecimal totalAmount;  // 총 금액
+    @Column(nullable = false)
+    private Double totalAmount;  // 총 금액 (수량 * 가격)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private OrderStatus status;  // PENDING, COMPLETED, CANCELLED
+    @Builder.Default
+    private OrderStatus status = OrderStatus.PENDING;  // 주문 상태
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    @Column
+    private LocalDateTime completedAt;  // 체결 시간
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        totalAmount = quantity * price;
     }
 
+    /**
+     * 주문 체결 처리
+     */
     public void complete() {
         this.status = OrderStatus.COMPLETED;
+        this.completedAt = LocalDateTime.now();
     }
 
+    /**
+     * 주문 취소
+     */
     public void cancel() {
         this.status = OrderStatus.CANCELLED;
     }
