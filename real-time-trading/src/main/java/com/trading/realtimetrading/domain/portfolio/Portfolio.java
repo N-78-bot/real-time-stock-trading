@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Entity
@@ -41,15 +42,19 @@ public class Portfolio {
         updatedAt = LocalDateTime.now();
     }
 
-    // 매수 처리
+    /**
+     * 매수 처리
+     */
     public void buy(BigDecimal buyQuantity, BigDecimal buyPrice) {
         BigDecimal totalCost = this.quantity.multiply(this.avgPrice)
                 .add(buyQuantity.multiply(buyPrice));
         this.quantity = this.quantity.add(buyQuantity);
-        this.avgPrice = totalCost.divide(this.quantity, 2, BigDecimal.ROUND_HALF_UP);
+        this.avgPrice = totalCost.divide(this.quantity, 2, RoundingMode.HALF_UP);
     }
 
-    // 매도 처리
+    /**
+     * 매도 처리
+     */
     public void sell(BigDecimal sellQuantity) {
         if (this.quantity.compareTo(sellQuantity) < 0) {
             throw new IllegalArgumentException("보유 수량이 부족합니다");

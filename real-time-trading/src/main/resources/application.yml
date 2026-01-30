@@ -12,13 +12,13 @@ spring:
     properties:
       hibernate:
         format_sql: true
-server:
-  port: 8081  # 다른 포트로 변경
-
 
   redis:
     host: localhost
     port: 6379
+
+server:
+  port: 8081
 
 logging:
   level:
