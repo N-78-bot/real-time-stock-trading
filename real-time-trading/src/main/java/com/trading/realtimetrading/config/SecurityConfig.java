@@ -39,6 +39,7 @@ public class SecurityConfig {
                         // 공개 API (인증 불필요)
                         .requestMatchers("/api/auth/**").permitAll()     // 회원가입, 로그인
                         .requestMatchers("/api/test/**").permitAll()     // Kafka 테스트
+                        .requestMatchers("/api/stocks/**").permitAll()   // 주식 시세 조회
                         .requestMatchers("/health/**").permitAll()       // Health Check
 
                         // WebSocket & 정적 리소스 (인증 불필요)
