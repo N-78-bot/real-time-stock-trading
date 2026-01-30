@@ -15,11 +15,13 @@ public class StockService {
 
     private final StockRepository stockRepository;
     private final StockPriceCache stockPriceCache;
+    private final WebSocketService webSocketService;
 
     /**
      * 실시간 시세 업데이트 처리
      * 1. DB에 저장
      * 2. Redis 캐시 업데이트
+     * 3. WebSocket으로 브로드캐스트
      */
     @Transactional
     public void updateStockPrice(StockPrice stockPrice) {
@@ -32,6 +34,10 @@ public class StockService {
 
         // Redis 캐시 업데이트
         stockPriceCache.cachePrice(stockPrice);
+
+        // WebSocket으로 실시간 전송
+        webSocketService.sendStockPrice(stockPrice);
+        webSocketService.broadcastStockPrice(stockPrice);
 
         log.info("Updated stock: {} - Price: {}", stockPrice.getCode(), stockPrice.getPrice());
     }
