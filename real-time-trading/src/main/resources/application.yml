@@ -17,6 +17,19 @@ spring:
     host: localhost
     port: 6379
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: trading-system
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+      auto-offset-reset: earliest
+
 server:
   port: 8081
 
@@ -26,4 +39,4 @@ logging:
 
 jwt:
   secret: your-256-bit-secret-key-change-this-in-production-please-make-it-long-enough
-  expiration: 86400000 # 24시간 (밀리초)
+  expiration: 86400000

@@ -6,59 +6,49 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
 
     private final SecretKey key;
-    private final long expirationTime;
+    private final long validityInMilliseconds;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration}") long expirationTime
-    ) {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes());
-        this.expirationTime = expirationTime;
+            @Value("${jwt.expiration}") long validityInMilliseconds) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.validityInMilliseconds = validityInMilliseconds;
     }
 
-    /**
-     * JWT 토큰 생성
-     */
-    public String generateToken(String email) {
+    public String createToken(String email) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expirationTime);
+        Date validity = new Date(now.getTime() + validityInMilliseconds);
 
         return Jwts.builder()
-                .subject(email)
-                .issuedAt(now)
-                .expiration(expiryDate)
-                .signWith(key)
+                .setSubject(email)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    /**
-     * 토큰에서 이메일 추출
-     */
     public String getEmailFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(key)
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
                 .build()
-                .parseSignedClaims(token)
-                .getPayload();
-
-        return claims.getSubject();
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
-    /**
-     * 토큰 유효성 검증
-     */
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
-                    .verifyWith(key)
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
                     .build()
-                    .parseSignedClaims(token);
+                    .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
